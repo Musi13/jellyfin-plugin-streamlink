@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Streamlink</title>
+</head>
+<body>
+        <div id="streamlinkConfigurationPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-select,emby-checkbox">
+            <div data-role="content">
+                <div class="content-primary">
+                    <form id="streamlinkConfigurationForm">
+                        <div class="inputContainer">
+                            <label class="inputLabel inputLabelUnfocused" for="streamlinkPath">Streamlink Path</label>
+                            <input id="streamlinkPath" name="streamlinkPath" is="emby-input"/>
+                            <div class="fieldDescription">Path to streamlink</div>
+                        </div>
+                        <div class="inputContainer">
+                            <label class="inputLabel inputLabelUnfocused" for="streamQuality">Stream Quality</label>
+                            <input id="streamQuality" name="streamQuality" is="emby-input" required=true defaultValue="best"/>
+                            <div class="fieldDescription">Specify stream quality; this can be a comma separated list of quality options to check for. Use "best" or "worst" to specify the highest or lowest quality options.</div>
+                        </div>
+                        <div class="inputContainer">
+                            <label class="inputLabel inputLabelUnfocused" for="extraArguments">Extra Streamlink Arguments</label>
+                            <input id="extraArguments" name="extraArguments" is="emby-input"/>
+                            <div class="fieldDescription">Additional arguments passed to streamlink, e.g. for logins.</div>
+                        </div>
+                        <div>
+                            <button is="emby-button" type="submit" class="raised button-submit block emby-button">
+                                <span>Save</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <script type="text/javascript">
+                var StreamlinkConfigurationPage = {
+                    pluginUniqueId: "87c22ffb-736c-41aa-8a2d-95d46977bb26",
+
+                    loadConfiguration: function() {
+                        Dashboard.showLoadingMsg();
+
+                        ApiClient.getPluginConfiguration(StreamlinkConfigurationPage.pluginUniqueId).then(function (config) {
+                            var page = $.mobile.activePage;
+
+                            $('#streamlinkPath', page).val(config.StreamlinkPath).change();
+                            $('#streamQuality', page).val(config.StreamQuality).change();
+                            $('#extraArguments', page).val(config.ExtraArguments).change();
+
+                            Dashboard.hideLoadingMsg();
+                        });
+                    },
+
+                    saveConfiguration: function() {
+                        Dashboard.showLoadingMsg();
+
+                        ApiClient.getPluginConfiguration(StreamlinkConfigurationPage.pluginUniqueId).then(function(config) {
+                            var page = $.mobile.activePage;
+
+                            config.StreamlinkPath = $('#streamlinkPath').val();
+                            config.StreamQuality = $('#streamQuality').val();
+                            config.ExtraArguments = $('#extraArguments').val();
+
+                            ApiClient.updatePluginConfiguration(StreamlinkConfigurationPage.pluginUniqueId, config).then(function (result) {
+                                Dashboard.processPluginConfigurationUpdateResult(result);
+                            });
+                        });
+                    },
+                };
+
+                $('#streamlinkConfigurationPage').on('pageshow', function () {
+                    StreamlinkConfigurationPage.loadConfiguration();
+                });
+
+                $('#streamlinkConfigurationPage').on('submit', function () {
+                    StreamlinkConfigurationPage.saveConfiguration();
+                    return false;
+                });
+            </script>
+        </div>
+    </body>
+    </html>
