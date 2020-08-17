@@ -14,8 +14,7 @@ namespace Jellyfin.Plugin.Streamlink
     {
         public Plugin(
             IApplicationPaths applicationPaths,
-            IXmlSerializer xmlSerializer,
-            ILogger logger)
+            IXmlSerializer xmlSerializer)
             : base(applicationPaths, xmlSerializer)
         {
             Instance = this;

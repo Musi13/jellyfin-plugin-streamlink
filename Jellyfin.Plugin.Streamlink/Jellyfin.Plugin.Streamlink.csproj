@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Jellyfin.Controller" Version="10.5.*" />
-    <PackageReference Include="Jellyfin.Model" Version="10.5.*" />
+    <PackageReference Include="Jellyfin.Controller" Version="10.*" />
+    <PackageReference Include="Jellyfin.Model" Version="10.*" />
     <Reference Include="Emby.Server.Implementations">
       <HintPath>../Emby.Server.Implementations.dll</HintPath>
     </Reference>

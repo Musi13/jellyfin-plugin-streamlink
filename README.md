@@ -80,7 +80,7 @@ index 55a86d4be..741ac759f 100644
          var supportsTunerCount = "m3u" === value;
          var supportsUserAgent = "m3u" === value;
 ```
-This is to fix the LiveTV Tuner settings, so you can actually configure the plugin.
+This is to fix the LiveTV Tuner settings, so you can actually configure the plugin. Note that updating Jellyfin will undo these changes, but the settings will be retained; you don't have to redo this unless you want to change the settings again.
 
 3. Restart jellyfin
 
