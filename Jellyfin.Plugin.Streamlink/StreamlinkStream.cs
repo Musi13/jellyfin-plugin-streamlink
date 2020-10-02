@@ -86,6 +86,7 @@ namespace Jellyfin.Plugin.Streamlink
 
             var now = DateTime.UtcNow;
 
+            #pragma warning disable CS4014
             StartStreaming(streamlinkProc, taskCompletionSource, LiveStreamCancellationTokenSource.Token);
 
             MediaSource.Path = _appHost.GetLoopbackHttpApiUrl() + "/LiveTv/LiveStreamFiles/" + UniqueId + "/stream.ts";

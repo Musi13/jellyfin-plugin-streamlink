@@ -11,7 +11,6 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.MediaInfo;
 using MediaBrowser.Common.Extensions;
 
@@ -32,45 +31,10 @@ namespace MediaBrowser.Channels.Streamlink
         // Increment as needed to invalidate all caches
         public string DataVersion => "1";
 
-        private string GetChannelId(StreamlinkChannelConfig channel)
-        {
-            return channel.Url.GetMD5().ToString("N", CultureInfo.InvariantCulture);
-        }
-
         public Task<ChannelItemResult> GetChannelItems(InternalChannelItemQuery query, CancellationToken cancellationToken)
         {
-            return GetChannelItemsInternal(cancellationToken);
-        }
-
-
-        private Task<ChannelItemResult> GetChannelItemsInternal(CancellationToken cancellationToken)
-        {
-            var items = new List<ChannelItemInfo>();
-
-            foreach (var s in Plugin.Instance.Configuration.Channels)
-            {
-                var item = new ChannelItemInfo
-                {
-                    Name = s.Name,
-                    ImageUrl = s.Image,
-                    Id = GetChannelId(s),
-                    Type = ChannelItemType.Media,
-                    ContentType = ChannelMediaContentType.Clip,
-                    MediaType = ChannelMediaType.Video,
-                    IsLiveStream = true,
-
-                    MediaSources = new List<MediaSourceInfo>
-                    {
-                        CreateMediaSourceInfo(s)
-                    }
-                };
-
-                items.Add(item);
-            }
-
-            return Task.FromResult(new ChannelItemResult
-            {
-                Items = items
+            return Task.FromResult(new ChannelItemResult {
+                Items = (from c in Plugin.Instance.Configuration.Channels select c.CreateChannelItemInfo()).ToList<ChannelItemInfo>()
             });
         }
 
@@ -120,52 +84,6 @@ namespace MediaBrowser.Channels.Streamlink
                 default:
                     throw new ArgumentException("Unsupported image type: " + type);
             }
-        }
-
-        protected virtual MediaSourceInfo CreateMediaSourceInfo(StreamlinkChannelConfig channel)
-        {
-            var mediaSource = new MediaSourceInfo
-            {
-                Path = channel.Url,
-                Protocol = MediaProtocol.File,
-                MediaStreams = new List<MediaStream>
-                {
-                    new MediaStream
-                    {
-                        Type = MediaStreamType.Video,
-                        // Set the index to -1 because we don't know the exact index of the video stream within the container
-                        // For twitch streams it seems to be 1, but that might not be consistent
-                        Index = -1,
-                        IsInterlaced = true
-                    },
-                    new MediaStream
-                    {
-                        Type = MediaStreamType.Audio,
-                        // Set the index to -1 because we don't know the exact index of the audio stream within the container
-                        // For twitch streams it seems to be 0
-                        Index = -1
-                    }
-                },
-                RequiresOpening = true,
-                RequiresClosing = true,
-                RequiresLooping = false,
-
-                OpenToken = StreamlinkProvider.Prefix + GetChannelId(channel),
-
-                ReadAtNativeFramerate = false,
-
-                Id = GetChannelId(channel),
-                IsInfiniteStream = true,
-                IsRemote = true,
-
-                IgnoreDts = true,
-                SupportsDirectPlay = true,
-                SupportsDirectStream = true
-            };
-
-            mediaSource.InferTotalBitrate();
-
-            return mediaSource;
         }
 
         public bool IsEnabledFor(string userId)
