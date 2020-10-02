@@ -1,7 +1,7 @@
 ---
 name: "jellyfin-plugin-streamlink"
 guid: "87c22ffb-736c-41aa-8a2d-95d46977bb26"
-version: "1.0.1"
+version: "2.0.0"
 targetAbi: "10.6.0.0"
 owner: "jellyfin"
 nicename: "Streamlink"

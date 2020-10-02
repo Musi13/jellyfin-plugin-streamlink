@@ -35,8 +35,7 @@
                         <div style="display: flex; align-items: center;margin: 1em 0;">
                             <h1 style="margin:0;">Streamlink Streams</h1>
                             <button is="emby-button" type="button" class="raised btnAdd submit mini" style="margin-left:1em;" title="Add" onclick="StreamlinkConfigurationPage.addStreamPopup();">
-                                <i class="md-icon">add</i>
-                                <span>Add</span>
+                                <span>Add Stream</span>
                             </button>
                         </div>
                         <div class="streamList paperList">
@@ -50,14 +49,11 @@
                         </div>
                         <div data-role="content">
                             <div class="inputContainer">
-                                <input is="emby-input" type="text" id="name" label="Name" />
+                                <input is="emby-input" type="text" autocomplete="off" id="name" label="Name" />
                             </div>
                             <div class="inputContainer">
-                                <input is="emby-input" type="url" id="url" label="Url:" />
+                                <input is="emby-input" type="url" autocomplete="off" id="url" label="Url:" />
                             </div>
-                            <!-- <div class="inputContainer">
-                                <input is="emby-input" type="text" id="Image" label="Image url:" />
-                            </div> -->
                             <p>
                                 <button is="emby-button" type="submit" class="raised button-submit block" data-icon="check" data-mini="true">
                                     <span>Add</span>
@@ -156,6 +152,7 @@
                     addStreamPopup: function () {
                         var page = $.mobile.activePage;
                         $('#name', page).val("").focus();
+                        $('#url', page).val("").focus();
                         $('#streamPopup', page).removeClass('hide');
                         $('#name', page).focus();
                     },
@@ -167,9 +164,7 @@
 
                         var newEntry = true;
                         var name = $('#name', page).val();
-                        // var image = $('#Image', page).val();
                         var url = $('#url', page).val();
-                        // var type = $('#Type', page).val();
                         var userId = Dashboard.getCurrentUserId();
 
                         if (StreamlinkConfigurationPage.config.Channels.length > 0) {
@@ -185,7 +180,6 @@
                             var conf = {};
 
                             conf.Name = name;
-                            // conf.Image = image;
                             conf.Url = url;
                             StreamlinkConfigurationPage.config.Channels.push(conf);
                         }

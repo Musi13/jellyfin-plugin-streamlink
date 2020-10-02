@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 using MediaBrowser.Model.Plugins;
 using MediaBrowser.Model.Dto;
@@ -32,17 +33,31 @@ namespace Jellyfin.Plugin.Streamlink.Configuration
     public class ChannelConfig
     {
         public string Name { get; set; }
-        public string Image { get; set; }
         public string Url { get; set; }
 
         public string Id { get => Url.GetMD5().ToString("N", CultureInfo.InvariantCulture); }
+
+        public virtual bool IsLive()
+        {
+            // This function does work, but each stream costs uses a few seconds to check
+            // so it currently isn't called when loading the dashboard.
+            var proc = new Process();
+            proc.StartInfo.FileName = Jellyfin.Plugin.Streamlink.Plugin.Instance.Configuration.StreamlinkPath;
+            proc.StartInfo.UseShellExecute = false;
+            proc.StartInfo.RedirectStandardOutput = true;
+            proc.StartInfo.ArgumentList.Add("--quiet");
+            proc.StartInfo.ArgumentList.Add("--stream-url");
+            proc.StartInfo.ArgumentList.Add(Url);
+            proc.Start();
+            proc.WaitForExit();
+            return proc.ExitCode == 0;
+        }
 
         public virtual ChannelItemInfo CreateChannelItemInfo()
         {
             return new ChannelItemInfo
             {
                 Name = Name,
-                ImageUrl = Image,
                 Id = Id,
                 Type = ChannelItemType.Media,
                 ContentType = ChannelMediaContentType.Clip,
