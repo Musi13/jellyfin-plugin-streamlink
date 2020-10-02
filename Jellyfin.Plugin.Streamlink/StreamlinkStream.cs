@@ -19,7 +19,9 @@ using Microsoft.Extensions.Logging;
 using Jellyfin.Plugin.Streamlink;
 using Jellyfin.Plugin.Streamlink.Configuration;
 
-namespace Emby.Server.Implementations.LiveTv.TunerHosts
+using Emby.Server.Implementations.LiveTv.TunerHosts;
+
+namespace Jellyfin.Plugin.Streamlink
 {
     public class StreamlinkStream : LiveStream, IDirectStreamProvider
     {
@@ -86,10 +88,9 @@ namespace Emby.Server.Implementations.LiveTv.TunerHosts
 
             StartStreaming(streamlinkProc, taskCompletionSource, LiveStreamCancellationTokenSource.Token);
 
-            // This is a bugfix in master that hasn't been rolled to release yet (as of 10.5.5)
-            // MediaSource.Path = _appHost.GetLoopbackHttpApiUrl() + "/LiveTv/LiveStreamFiles/" + UniqueId + "/stream.ts";
-            MediaSource.Path = "http://127.0.0.1:8096/LiveTv/LiveStreamFiles/" + UniqueId + "/stream.ts";
+            MediaSource.Path = _appHost.GetLoopbackHttpApiUrl() + "/LiveTv/LiveStreamFiles/" + UniqueId + "/stream.ts";
             MediaSource.Protocol = MediaProtocol.Http;
+            MediaSource.LiveStreamId = OriginalStreamId;
 
             await taskCompletionSource.Task.ConfigureAwait(false);
             if (taskCompletionSource.Task.Exception != null)

@@ -31,6 +31,43 @@
                             </button>
                         </div>
                     </form>
+                    <div class="readOnlyContent">
+                        <div style="display: flex; align-items: center;margin: 1em 0;">
+                            <h1 style="margin:0;">Streamlink Streams</h1>
+                            <button is="emby-button" type="button" class="raised btnAdd submit mini" style="margin-left:1em;" title="Add" onclick="StreamlinkConfigurationPage.addStreamPopup();">
+                                <i class="md-icon">add</i>
+                                <span>Add</span>
+                            </button>
+                        </div>
+                        <div class="streamList paperList">
+                        </div>
+                    </div>
+                </div>
+                <div data-role="popup" id="streamPopup" class="dialog dialog-fixedSize dialog-medium-tall hide" style="position: fixed; top: 10%;">
+                    <form id="streamForm" style="padding:1em;">
+                        <div class="ui-bar-a" style="text-align: center; padding: 0 20px;">
+                            <h3>Add Stream</h3>
+                        </div>
+                        <div data-role="content">
+                            <div class="inputContainer">
+                                <input is="emby-input" type="text" id="name" label="Name" />
+                            </div>
+                            <div class="inputContainer">
+                                <input is="emby-input" type="url" id="url" label="Url:" />
+                            </div>
+                            <!-- <div class="inputContainer">
+                                <input is="emby-input" type="text" id="Image" label="Image url:" />
+                            </div> -->
+                            <p>
+                                <button is="emby-button" type="submit" class="raised button-submit block" data-icon="check" data-mini="true">
+                                    <span>Add</span>
+                                </button>
+                                <button is="emby-button" type="button" class="raised button-cancel block" data-icon="delete" onclick="$('#streamPopup').addClass('hide');" data-mini="true">
+                                    <span>${ButtonCancel}</span>
+                                </button>
+                            </p>
+                        </div>
+                    </form>
                 </div>
             </div>
 
@@ -38,17 +75,48 @@
                 var StreamlinkConfigurationPage = {
                     pluginUniqueId: "87c22ffb-736c-41aa-8a2d-95d46977bb26",
 
+                    populateStreamList: function (page) {
+                        var streams = StreamlinkConfigurationPage.config.Channels;
+                        var html = "";
+
+                        for (var i = 0; i < streams.length; i++) {
+                            var stream = streams[i];
+
+                            html += '<div class="listItem">';
+                            html += '<i class="listItemIcon md-icon"></i>';
+                            html += '<div class="listItemBody two-line">';
+                            html += '<h3 class="listItemBodyText">';
+                            html += stream.Name;
+                            html += '</h3>';
+                            html += '</div>';
+                            html += '<button type="button" is="paper-icon-button-light" onclick="StreamlinkConfigurationPage.deleteStream(this, ' + i + ');"title="Delete"><i class="md-icon">delete</i></button>';
+                            html += '</div>';
+                        }
+
+                        var streamList = page.querySelector('.streamList');
+                        streamList.innerHTML = html;
+
+                        if (streams.length) {
+                            streamList.classList.remove('hide');
+                        } else {
+                            streamList.classList.add('hide');
+                        }
+                    },
+
                     loadConfiguration: function() {
                         Dashboard.showLoadingMsg();
 
                         ApiClient.getPluginConfiguration(StreamlinkConfigurationPage.pluginUniqueId).then(function (config) {
                             var page = $.mobile.activePage;
+                            StreamlinkConfigurationPage.config = config;
 
                             $('#streamlinkPath', page).val(config.StreamlinkPath).change();
                             $('#streamQuality', page).val(config.StreamQuality).change();
                             $('#extraArguments', page).val(config.ExtraArguments).change();
 
-                            Dashboard.hideLoadingMsg();
+                            StreamlinkConfigurationPage.populateStreamList(page);
+
+                            Dashboard.hideLoadingMsg(page);
                         });
                     },
 
@@ -61,12 +129,70 @@
                             config.StreamlinkPath = $('#streamlinkPath').val();
                             config.StreamQuality = $('#streamQuality').val();
                             config.ExtraArguments = $('#extraArguments').val();
+                            config.Channels = StreamlinkConfigurationPage.config.Channels;
 
                             ApiClient.updatePluginConfiguration(StreamlinkConfigurationPage.pluginUniqueId, config).then(function (result) {
                                 Dashboard.processPluginConfigurationUpdateResult(result);
                             });
+
+                            StreamlinkConfigurationPage.populateStreamList(page);
                         });
                     },
+
+                    deleteStream: function (button, index) {
+                        var msg = "Are you sure you wish to delete this channel?";
+
+                        require(['confirm'], function (confirm) {
+                            confirm(msg, "Delete Channel").then(function () {
+                                StreamlinkConfigurationPage.config.Channels.splice(index, 1);
+                                var page = $(button).parents('.page')[0];
+
+                                StreamlinkConfigurationPage.saveConfiguration();
+                                StreamlinkConfigurationPage.populateStreamList(page);
+                            });
+                        });
+                    },
+
+                    addStreamPopup: function () {
+                        var page = $.mobile.activePage;
+                        $('#name', page).val("").focus();
+                        $('#streamPopup', page).removeClass('hide');
+                        $('#name', page).focus();
+                    },
+
+                    addStream: function (page) {
+                        var page = $.mobile.activePage;
+                        $('#streamPopup', page).addClass('hide');
+                        var form = this;
+
+                        var newEntry = true;
+                        var name = $('#name', page).val();
+                        // var image = $('#Image', page).val();
+                        var url = $('#url', page).val();
+                        // var type = $('#Type', page).val();
+                        var userId = Dashboard.getCurrentUserId();
+
+                        if (StreamlinkConfigurationPage.config.Channels.length > 0) {
+                            for (var i = 0, length = StreamlinkConfigurationPage.config.Channels.length; i < length; i++) {
+                                if (StreamlinkConfigurationPage.config.Channels[i].Name == name) {
+                                    newEntry = false;
+                                    StreamlinkConfigurationPage.config.Channels[i].Url = url;
+                                }
+                            }
+                        }
+
+                        if (newEntry) {
+                            var conf = {};
+
+                            conf.Name = name;
+                            // conf.Image = image;
+                            conf.Url = url;
+                            StreamlinkConfigurationPage.config.Channels.push(conf);
+                        }
+                        StreamlinkConfigurationPage.saveConfiguration();
+                        StreamlinkConfigurationPage.populateStreamList(page);
+                        return false;
+                    }
                 };
 
                 $('#streamlinkConfigurationPage').on('pageshow', function () {
@@ -77,6 +203,11 @@
                     StreamlinkConfigurationPage.saveConfiguration();
                     return false;
                 });
+
+                $("#streamForm").on('submit', function (e) {
+                    StreamlinkConfigurationPage.addStream();
+                    return false;
+                })
             </script>
         </div>
     </body>
