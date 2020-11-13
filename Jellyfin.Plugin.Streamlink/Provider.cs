@@ -90,6 +90,10 @@ namespace MediaBrowser.Providers.Plugin.Streamlink
 
             _logger.LogDebug("Current Streams: {0}", currentLiveStreams);
 
+            foreach (var curstream in currentLiveStreams)
+                if (curstream.OriginalStreamId == openToken)
+                    return Task.FromResult(curstream);
+
             var ctask = (new MediaBrowser.Channels.Streamlink.Channel()).GetChannelItems(null, cancellationToken);
             ctask.Wait();
             var channelInfos = ctask.Result.Items;
