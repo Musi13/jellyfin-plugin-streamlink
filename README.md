@@ -35,7 +35,7 @@ dotnet publish --configuration Release --output bin
 
 ## Installation Process
 
-1. Place the dll file in the `plugins` folder under the program data directory or inside the portable install directory. E.g. .../plugins/Streamlink/Jellyfin.Plufin.Streamlink.dll
+1. Place the dll file in the `plugins` folder under the program data directory or inside the portable install directory. E.g. .../plugins/Streamlink/Jellyfin.Plugin.Streamlink.dll
 
 2. Restart jellyfin
 
