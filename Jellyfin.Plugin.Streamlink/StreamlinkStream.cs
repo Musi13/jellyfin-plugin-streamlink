@@ -156,5 +156,10 @@ namespace Jellyfin.Plugin.Streamlink
             DateOpened = DateTime.UtcNow;
             openTaskCompletionSource.TrySetResult(true);
         }
+
+        public string GetFilePath()
+        {
+            return TempFilePath;
+        }
     }
 }

@@ -23,7 +23,7 @@ In any case, there are some features that I would like to add before aiming at a
 
 1. Clone or download this repository
 
-2. Ensure you have .NET Core 3.1+ SDK setup and installed
+2. Ensure you have .NET 5.0+ SDK setup and installed
 
 3. Copy Emby.Server.Implementations.dll from an existing Jellyfin install into the repo root
 
