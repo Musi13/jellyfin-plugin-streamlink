@@ -1,3 +1,9 @@
+## Deprecation
+
+This plugin has been updated to (mostly) work with Jellyfin 10.7, but I noticed some persistent issues with Jellyfin on Roku, which was the original purpose of this project. Since I only use this every 4 months or so, I've decided that I'd rather give in to Amazon and buy a fire stick to use a real Twitch app instead of debugging Jellyfin server and Roku every time I want to use it.
+
+The implementation for this has always been tied to internal libraries for Jellyfin, which means that it's pretty brittle to updates. So rather than learning a lot about the internals of Jellyfin and rewriting this to be more stable, I'll retire it and leave the repo up as an example if anyone finds it useful.
+
 <h1 align="center">Jellyfin Streamlink Plugin</h1>
 <h3 align="center">A plugin for the <a href="https://jellyfin.media">Jellyfin Project</a></h3>
 <h3 align="center">to work with <a href="https://streamlink.github.io">Streamlink</a></h3>
